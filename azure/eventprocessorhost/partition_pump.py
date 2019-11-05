@@ -148,6 +148,8 @@ class PartitionPump():
                     await self.processor.process_events_async(self.partition_context, events)
             except Exception as err:  # pylint: disable=broad-except
                 await self.process_error_async(err)
+                if (str(err) == "failed to persist checkpoint"):
+                    await self.close_async("Unable to persist checkpoint.  This often means we lost the lease.  Proactively closing to avoid churn.")
 
     async def process_error_async(self, error):
         """
